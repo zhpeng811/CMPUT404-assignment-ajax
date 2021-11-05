@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
         Copyright 2013 Abram Hindle
+        Copyright 2019 Hazel Victoria Campbell
         Copyright 2021 Ze Hui Peng
         
         Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +32,9 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
+var id = "L"+Math.floor(20000000*Math.random());
 
-
-function sendJSONXMLHTTPRequest(url, objects, callback) {
+function sendJSONXMLHTTPRequest(url, objects, method, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState==4) {
@@ -56,12 +57,17 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     var sendData = JSON.stringify(objects);
     // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader
     // setRequestHeader() must be called before send() and after open()
-    xhr.open("POST", url);
+    xhr.open(method || "GET", url);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Accept", "application/json");
     xhr.send(sendData);
 }
 
+function register() {
+    sendJSONXMLHTTPRequest('/listener/' + id, null, "PUT");
+}
+
+register();
 
 world = {};
 
@@ -183,7 +189,7 @@ function addEntity(entity, data) {
     var url = "/entity/" + entity;
     // Notice there is no callback passed as parameter here
     // A JavaScript hack that unspecified parameter will be undefined
-    sendJSONXMLHTTPRequest(url, data);
+    sendJSONXMLHTTPRequest(url, data, "POST");
 }
 
 var counter = 0;
@@ -317,11 +323,16 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 
 function update() {
-    sendJSONXMLHTTPRequest('/world', null, function(data) {
-        world = data;
+    sendJSONXMLHTTPRequest('/listener/' + id, null, "GET", function(response) {
+        var data = response;
+        if (data) {
+            for (let key in data) {
+                world[key] = data[key];
+            }
+            drawNextFrame();
+            drawFrame();
+        }
     });
-    drawNextFrame();
-    drawFrame();
 }
 
 // 30 frames per second

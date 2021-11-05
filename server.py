@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 # Copyright 2013 Abram Hindle
+# Copyright 2019 Hazel Victoria Campbell
 # Copyright 2021 Ze Hui Peng
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,15 +46,30 @@ class World:
 
     def set(self, entity, data):
         self.space[entity] = data
+        self.notify_all(entity,data)
 
     def clear(self):
         self.space = dict()
+        self.listeners = dict()
 
     def get(self, entity):
         return self.space.get(entity,dict())
     
     def world(self):
         return self.space
+
+    def notify_all(self,entity,data):
+        for listener in self.listeners:
+           self.listeners[listener][entity] = data
+
+    def add_listener(self,listener_name):
+        self.listeners[listener_name] = dict()
+
+    def get_listener(self, listener_name):
+        return self.listeners[listener_name]
+
+    def clear_listener(self, listener_name):
+        self.listeners[listener_name] = dict()
 
 # you can test your webservice from the commandline
 # curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
@@ -83,6 +99,17 @@ def update(entity):
     data = flask_post_json()
     myWorld.set(entity, data)
     return get_entity(entity)
+
+@app.route("/listener/<entity>", methods=['POST','PUT'])
+def add_listener(entity):
+    myWorld.add_listener( entity )
+    return flask.jsonify(dict())
+
+@app.route("/listener/<entity>")    
+def get_listener(entity):
+    v = myWorld.get_listener(entity)
+    myWorld.clear_listener(entity)
+    return flask.jsonify( v )
 
 @app.route("/world", methods=['POST','GET'])    
 def world():

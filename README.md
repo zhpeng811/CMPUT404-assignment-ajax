@@ -15,6 +15,8 @@ The Pikachu image drawn on `mousemove` is obtained from: https://www.clipartmax.
 The Heart pattern drawn on `mouseup` and `mousedown` is obtained from MDN Web Docs: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes#bezier_and_quadratic_curves
 * Drawing shapes with canvas by [Mozilla Contributors](https://developer.mozilla.org/en-US/docs/MDN/About/contributors.txt) is licensed under [CC-BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/)
 
+The Observer pattern implemented in this assignment is taken from the AJAX Observer Example from CMPUT404 Slides: https://github.com/uofa-cmput404/cmput404-slides/tree/master/examples/ObserverExampleAJAX
+
 Contributors / Licensing
 ========================
 
